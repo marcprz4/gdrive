@@ -1,0 +1,32 @@
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
+    id 'org.beryx.jlink' version '2.12.0'
+}
+
+group 'gdrive'
+version '1.0-SNAPSHOT'
+
+//sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+dependencies {
+    compile 'com.google.api-client:google-api-client:1.23.0'
+    compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
+    compile 'com.google.apis:google-api-services-drive:v3-rev110-1.23.0'
+}
+javafx {
+    version = "13"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+mainClassName = 'org.openjfx.Main'
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.openjfx.Main'
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
