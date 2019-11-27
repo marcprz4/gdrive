@@ -10,9 +10,26 @@ import java.util.List;
 
 
 public class DriveFilesReader {
-    public static List<File> retrieveAllFiles(Drive service) throws IOException {
+    public static List<File> retrieveAllFiles(String type) throws IOException {
         List<File> result = new ArrayList<File>();
-        Drive.Files.List request = service.files().list();
+        Drive.Files.List request;
+        switch (type) {
+            case "Folders": {
+                request = DriveController.service.files().list().setQ("mimeType = 'application/vnd.google-apps.folder'");
+                break;
+            }
+            case "Files": {
+                request = DriveController.service.files().list().setQ("mimeType != 'application/vnd.google-apps.folder' and mimeType != 'application/vnd.google-apps.document'");
+                break;
+            }
+            case "Photos": {
+                request = DriveController.service.files().list().setQ("mimeType != 'application/vnd.google-apps.photo' and mimeType != 'application/vnd.google-apps.document'");
+                break;
+            }
+            default: {
+                request = DriveController.service.files().list();
+            }
+        }
         do {
             try {
                 FileList files = request.execute();

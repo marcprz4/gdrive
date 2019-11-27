@@ -31,8 +31,8 @@ public class DriveController {
      */
     private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE);
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
-    private static List<File> files;
     public static Drive service;
+    private static List<File> files;
 
     /**
      * Creates an authorized Credential object.
@@ -67,20 +67,15 @@ public class DriveController {
                 .build();
 
         // Print the names and IDs for up to 10 files.
+
+    }
+
+    public static void listFiles(String type) throws IOException {
         FileList result = service.files().list()
                 .setPageSize(10)
                 .setFields("nextPageToken, files(id, name)")
                 .execute();
-        files = DriveFilesReader.retrieveAllFiles(service);
-
-//        if (files == null || files.isEmpty()) {
-//            System.out.println("No files found.");
-//        } else {
-//            System.out.println("Files:");
-//            for (File file : files) {
-//                System.out.printf("%s (%s)\n", file.getName(), file.getId());
-//            }
-//        }
+        files = DriveFilesReader.retrieveAllFiles(type);
     }
 
     public static List<String> fileToString(List<File> files) {

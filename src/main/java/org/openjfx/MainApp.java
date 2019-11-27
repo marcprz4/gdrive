@@ -12,18 +12,17 @@ public class MainApp extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+
     @Override
     public void start(Stage stage) throws Exception {
-        DriveController.run();
 
         Parent root = FXMLLoader.load(getClass().getResource("scene.fxml"));
 
         Scene scene = new Scene(root);
-//        scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
 
         stage.setTitle("JavaFX and Gradle");
         stage.setScene(scene);
-stage.show();
+        stage.show();
     }
 
 }
