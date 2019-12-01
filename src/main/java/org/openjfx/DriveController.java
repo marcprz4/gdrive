@@ -69,16 +69,16 @@ public class DriveController {
         // Print the names and IDs for up to 10 files.
 
     }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
     public static void listFiles(String type) throws IOException {
         FileList result = service.files().list()
-                .setPageSize(10)
+                .setPageSize(100)
                 .setFields("nextPageToken, files(id, name)")
                 .execute();
         files = DriveFilesReader.retrieveAllFiles(type);
     }
 
-    public static List<String> fileToString(List<File> files) {
+    public static List<String> fileToString() {
         List<String> resultList = new ArrayList<>();
         for (File f : files) {
             resultList.add(f.getName());
@@ -103,4 +103,6 @@ public class DriveController {
                 .executeMediaAndDownloadTo(outputStream);
         return good;
     }
+
+
 }

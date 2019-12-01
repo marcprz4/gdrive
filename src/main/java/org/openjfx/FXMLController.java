@@ -11,6 +11,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -32,7 +33,7 @@ public class FXMLController implements Initializable {
     @FXML
     private Label label;
     @FXML
-    private ChoiceBox<String> combo;
+    private ListView<String> combo;
     @FXML
     private Button down;
     @FXML
@@ -43,10 +44,11 @@ public class FXMLController implements Initializable {
     private Label dropped;
     @FXML
     private Button load;
+
     private java.io.File file;
     private int start = 0;
     private int end = 10;
-    private int add=0;
+    private int add = 0;
     private ObservableList<String> observableList = FXCollections.observableArrayList();
 
     public static boolean isOk() {
@@ -72,9 +74,10 @@ public class FXMLController implements Initializable {
         }
         ObservableList<String> typesList = FXCollections.observableArrayList("Folders", "Files", "Photos");
         types.setItems(typesList);
-
+//        fileList.getItems().clear();
+//combo.getItems().addAll("TEST","DWA");
         selectedType = types.getSelectionModel().toString();
-        Label label2 = new Label("Drag a file to me.");
+        Label label2 = new Label("Drag a file here to upload.");
         Label dropped = new Label("");
         VBox dragTarget = new VBox();
         dragTarget.getChildren().addAll(label2, dropped);
@@ -98,7 +101,9 @@ public class FXMLController implements Initializable {
                 Dragboard db = event.getDragboard();
                 boolean success = false;
                 if (db.hasFiles()) {
-                    dropped.setText(db.getFiles().toString());
+                    String name=NameCutter.cut(db.getFiles().toString());
+                    dropped.setText(name.substring(0,name.length()-1));
+//                    fileList.getItems().add();
                     filename = db.getFiles().get(0).toString();
                     success = true;
                 }
@@ -120,7 +125,7 @@ public class FXMLController implements Initializable {
 
     public void download(ActionEvent actionEvent) {
         load.getStyleClass().add("reset");
-        int index = (combo.getSelectionModel().getSelectedIndex())+add;
+        int index = (combo.getSelectionModel().getSelectedIndex()) + add;
 
         boolean good;
         try {
@@ -137,18 +142,8 @@ public class FXMLController implements Initializable {
 
     public void upload(ActionEvent actionEvent) throws IOException {
         load.getStyleClass().add("reset");
-        String name2;
-        int nm = 0;
-        for (int i = 0; i < filename.length(); i++) {
-
-            if (filename.charAt(i) == 92) {
-                nm = i;
-            }
-        }
-        name2 = filename.substring(nm + 1, filename.length());
-
         File fileMetadata = new File();
-        fileMetadata.setName(name2);
+        fileMetadata.setName(NameCutter.cut(filename));
         java.io.File filePath = new java.io.File(filename);
         FileContent mediaContent = new FileContent("image/png", filePath);
         File file = DriveController.service.files().create(fileMetadata, mediaContent)
@@ -157,29 +152,12 @@ public class FXMLController implements Initializable {
         result.setText("Uploaded successfully.");
     }
 
-    public void checkPages(ActionEvent actionEvent) {
-        if (combo.getSelectionModel().getSelectedIndex() == 11) {
-            if (end < DriveController.getFiles().size()) {
-                start += 10;
-                end += 10;
-                add+=10;
-            }
-            observableList = ListController.setItems(start, end, combo);
-        } else if (combo.getSelectionModel().getSelectedIndex() == 10) {
-            if (start >= 10) {
-                start -= 10;
-                end -= 10;
-                add-=10;
-            }
-            observableList = ListController.setItems(start, end, combo);
-
-        }
-    }
-
     public void load(ActionEvent actionEvent) throws IOException {
-        load.getStyleClass().add("buttonBusy");
         DriveController.listFiles(types.getSelectionModel().getSelectedItem());
-        observableList = ListController.setItems(start, end, combo);
+        observableList=FXCollections.observableList(DriveController.fileToString());
+        combo.getItems().clear();
+        combo.getItems().addAll(observableList);
+        System.out.println(observableList.size());
         result.setText("Files loaded successfully.");
     }
 }
