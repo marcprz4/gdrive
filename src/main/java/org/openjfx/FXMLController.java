@@ -1,17 +1,12 @@
 package org.openjfx;
 
-import com.google.api.client.http.FileContent;
-import com.google.api.services.drive.model.File;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -24,7 +19,6 @@ import java.security.GeneralSecurityException;
 import java.util.ResourceBundle;
 
 public class FXMLController implements Initializable {
-
     static private String selectedType;
     static private boolean ok = false;
     String filename;
@@ -44,7 +38,8 @@ public class FXMLController implements Initializable {
     private Label dropped;
     @FXML
     private Button load;
-
+    @FXML
+    private TextField size;
     private java.io.File file;
     private int start = 0;
     private int end = 10;
@@ -74,8 +69,6 @@ public class FXMLController implements Initializable {
         }
         ObservableList<String> typesList = FXCollections.observableArrayList("Folders", "Files", "Photos");
         types.setItems(typesList);
-//        fileList.getItems().clear();
-//combo.getItems().addAll("TEST","DWA");
         selectedType = types.getSelectionModel().toString();
         Label label2 = new Label("Drag a file here to upload.");
         Label dropped = new Label("");
@@ -87,7 +80,6 @@ public class FXMLController implements Initializable {
             public void handle(DragEvent event) {
                 if (event.getGestureSource() != dragTarget
                         && event.getDragboard().hasFiles()) {
-                    /* allow for both copying and moving, whatever user chooses */
                     event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
                 }
                 event.consume();
@@ -101,14 +93,12 @@ public class FXMLController implements Initializable {
                 Dragboard db = event.getDragboard();
                 boolean success = false;
                 if (db.hasFiles()) {
-                    String name=NameCutter.cut(db.getFiles().toString());
-                    dropped.setText(name.substring(0,name.length()-1));
+                    String name = NameCutter.cut(db.getFiles().toString());
+                    dropped.setText(name.substring(0, name.length() - 1));
 //                    fileList.getItems().add();
                     filename = db.getFiles().get(0).toString();
                     success = true;
                 }
-                /* let the source know whether the string was successfully
-                 * transferred and used */
                 event.setDropCompleted(success);
 
                 event.consume();
@@ -142,22 +132,22 @@ public class FXMLController implements Initializable {
 
     public void upload(ActionEvent actionEvent) throws IOException {
         load.getStyleClass().add("reset");
-        File fileMetadata = new File();
-        fileMetadata.setName(NameCutter.cut(filename));
-        java.io.File filePath = new java.io.File(filename);
-        FileContent mediaContent = new FileContent("image/png", filePath);
-        File file = DriveController.service.files().create(fileMetadata, mediaContent)
-                .setFields("id")
-                .execute();
+        DriveController.upload(filename);
         result.setText("Uploaded successfully.");
     }
 
     public void load(ActionEvent actionEvent) throws IOException {
         DriveController.listFiles(types.getSelectionModel().getSelectedItem());
-        observableList=FXCollections.observableList(DriveController.fileToString());
+        observableList = FXCollections.observableList(DriveController.fileToString());
         combo.getItems().clear();
-        combo.getItems().addAll(observableList);
-        System.out.println(observableList.size());
+
+        String listSize = size.getText();
+        boolean isInt = IntegerChecker.check(listSize);
+        if (isInt) {
+            combo.getItems().addAll(observableList.subList(0, 0 + Integer.parseInt(listSize)));
+        } else {
+            combo.getItems().addAll(observableList);
+        }
         result.setText("Files loaded successfully.");
     }
 }

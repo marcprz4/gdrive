@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class DriveFilesReader {
     public static List<File> retrieveAllFiles(String type) throws IOException {
         List<File> result = new ArrayList<File>();
@@ -41,7 +40,6 @@ public class DriveFilesReader {
             }
         } while (request.getPageToken() != null &&
                 request.getPageToken().length() > 0 && result.size() < 100);
-
         return result;
     }
 }
